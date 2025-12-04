@@ -60,8 +60,14 @@ urlpatterns = [
     # Lista de todas las materias
     path('lista-materias/', materias.MateriasAll.as_view()),
     
-    # Login
+    # Login general
     path('login/', auth.CustomAuthToken.as_view()),
+    
+    # Login para alumnos (NUEVO - para compatibilidad con frontend)
+    path('alumnos/login/', auth.CustomAuthToken.as_view(), name='login-alumnos'),
+    
+    # Login para administradores (NUEVO - opcional)
+    path('admin/login/', auth.CustomAuthToken.as_view(), name='login-admin'),
     
     # Logout
     path('logout/', auth.Logout.as_view()),
