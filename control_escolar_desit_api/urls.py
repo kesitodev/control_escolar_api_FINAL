@@ -63,11 +63,17 @@ urlpatterns = [
     # Login general
     path('login/', auth.CustomAuthToken.as_view()),
     
-    # Login para alumnos (NUEVO - para compatibilidad con frontend)
+    # Login para alumnos (sin doble slash - correcto)
     path('alumnos/login/', auth.CustomAuthToken.as_view(), name='login-alumnos'),
     
-    # Login para administradores (NUEVO - opcional)
+    # Login FIX para frontend con doble slash (TEMPORAL)
+    path('alumnos//login/', auth.CustomAuthToken.as_view(), name='login-alumnos-fix'),
+    
+    # Login para administradores (sin doble slash - correcto)
     path('admin/login/', auth.CustomAuthToken.as_view(), name='login-admin'),
+    
+    # Login FIX para frontend con doble slash (TEMPORAL)
+    path('admin//login/', auth.CustomAuthToken.as_view(), name='login-admin-fix'),
     
     # Logout
     path('logout/', auth.Logout.as_view()),
