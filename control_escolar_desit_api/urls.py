@@ -42,8 +42,14 @@ urlpatterns = [
     # Create Alumno
     path('alumnos/', alumnos.AlumnosView.as_view()),
     
+    # FIX para frontend con doble slash (TEMPORAL)
+    path('alumnos//alumnos/', alumnos.AlumnosView.as_view(), name='alumnos-fix'),
+    
     # Create Maestro
     path('maestros/', maestros.MaestrosView.as_view()),
+    
+    # FIX para frontend con doble slash (TEMPORAL)
+    path('alumnos//maestros/', maestros.MaestrosView.as_view(), name='maestros-fix'),
     
     # Maestro Data
     path('lista-maestros/', maestros.MaestrosAll.as_view()),
