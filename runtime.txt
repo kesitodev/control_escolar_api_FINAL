@@ -1,0 +1,2 @@
+# Django 5.0 requiere Python 3.10+
+'python-3.11.9' | Out-File -FilePath runtime.txt -Encoding UTF8
