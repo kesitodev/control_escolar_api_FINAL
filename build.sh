@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env bash
+#!/usr/bin/env bash
 # build.sh para Render con Django y Neon PostgreSQL
 
 set -o errexit
@@ -22,8 +22,4 @@ echo "🎨 Recolectando archivos estáticos..."
 python manage.py collectstatic --noinput --clear
 
 echo "✅ Build completado exitosamente"
-echo "📊 Resumen:"
-echo "   - Proyecto: control_escolar_desit_api"
-echo "   - Base de datos: PostgreSQL (Neon)"
-echo "   - Servidor: Gunicorn"
-echo "   - Archivos estáticos: WhiteNoise"
+echo "📊 Proyecto Django: control_escolar_desit_api"

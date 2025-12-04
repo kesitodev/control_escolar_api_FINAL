@@ -14,41 +14,40 @@ SECRET_KEY = os.environ.get('SECRET_KEY', default='oiweiofjwoj249024wrfij3-90132
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-# Hosts permitidos para Render
-ALLOWED_HOSTS = []
+# Hosts permitidos - IMPORTANTE para Render
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    '.onrender.com',  # Permite cualquier app en Render
+]
 
 # Si estamos en Render, agregar el hostname automáticamente
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
-# También permitir localhost para desarrollo
-ALLOWED_HOSTS.extend(['localhost', '127.0.0.1'])
-
-# Si necesitas agregar más hosts desde variables de entorno
-if os.environ.get('ALLOWED_HOSTS'):
-    ALLOWED_HOSTS.extend(os.environ.get('ALLOWED_HOSTS').split(','))
-
+# Aplicaciones instaladas
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'whitenoise.runserver_nostatic',  # ¡IMPORTANTE agregar aquí!
+    'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
-    'corsheaders',               
+    'corsheaders',                # Para CORS
     'rest_framework',
     'rest_framework.authtoken',
     'django_filters',
     'control_escolar_desit_api',  # Tu app principal
 ]
 
+# Middleware - ORDEN CRÍTICO
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # WhiteNoise aquí
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'corsheaders.middleware.CorsMiddleware',      # ← DEBE IR DESPUÉS de WhiteNoise
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',      
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -56,19 +55,21 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# CORS - Permitir solo los orígenes necesarios (más seguro)
+# ================== CONFIGURACIÓN CORS ==================
+# URL EXACTA de tu frontend según los logs
 CORS_ALLOWED_ORIGINS = [
-    "https://control-escolar-webapp-final-dgvfqz05q-keisi-perezs-projects.vercel.app",
-    "http://localhost:4200",
-    "http://localhost:8000",
+    "https://control-escolar-webapp-final.vercel.app",  # URL CORRECTA
+    "http://localhost:3000",  # Para desarrollo de React/Vue
+    "http://localhost:4200",  # Para Angular
+    "http://localhost:8000",  # Para desarrollo local
 ]
 
-# O para desarrollo, puedes permitir todos (pero quita esto en producción):
-# CORS_ALLOW_ALL_ORIGINS = True
+# Opción temporal para diagnóstico (descomenta si necesitas probar):
+# CORS_ALLOW_ALL_ORIGINS = True  # ← SOLO para pruebas, luego quita
 
 CORS_ALLOW_CREDENTIALS = True
 
-# Métodos permitidos
+# Métodos HTTP permitidos
 CORS_ALLOW_METHODS = [
     "DELETE",
     "GET",
@@ -78,6 +79,7 @@ CORS_ALLOW_METHODS = [
     "PUT",
 ]
 
+# Headers permitidos
 CORS_ALLOW_HEADERS = [
     "accept",
     "accept-encoding",
@@ -89,6 +91,14 @@ CORS_ALLOW_HEADERS = [
     "x-csrftoken",
     "x-requested-with",
 ]
+
+# IMPORTANTE para CSRF - Mismos dominios que CORS
+CSRF_TRUSTED_ORIGINS = [
+    "https://control-escolar-webapp-final.vercel.app",
+    "https://*.vercel.app",  # Para cualquier app de Vercel
+    "https://*.onrender.com",  # Para tu backend en Render
+]
+# ======================================================
 
 ROOT_URLCONF = 'control_escolar_desit_api.urls'
 
@@ -110,7 +120,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'control_escolar_desit_api.wsgi.application'
 
-# CONFIGURACIÓN DE BASE DE DATOS PARA RENDER + NEON
+# ================== CONFIGURACIÓN DE BASE DE DATOS ==================
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
 if DATABASE_URL:
@@ -130,7 +140,9 @@ else:
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
+# ===================================================================
 
+# Validadores de contraseña
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -138,21 +150,24 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
+# Configuración de idioma y tiempo
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
-# STATIC FILES CONFIGURATION
+# ================== ARCHIVOS ESTÁTICOS ==================
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Media files (si usas)
+# Archivos multimedia (si los usas)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# ======================================================
 
+# ================== REST FRAMEWORK ==================
 REST_FRAMEWORK = {
     'COERCE_DECIMAL_TO_STRING': False,
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
@@ -165,10 +180,11 @@ REST_FRAMEWORK = {
         'django_filters.rest_framework.DjangoFilterBackend',
     ),
 }
+# ====================================================
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# SSL/HTTPS settings (para producción)
+# ================== SEGURIDAD PRODUCCIÓN ==================
 if not DEBUG:
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
@@ -178,3 +194,28 @@ if not DEBUG:
     SECURE_HSTS_SECONDS = 31536000  # 1 año
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
+# ======================================================
+
+# ================== LOGGING PARA DIAGNÓSTICO ==================
+import logging
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+        },
+        'corsheaders': {
+            'handlers': ['console'],
+            'level': 'DEBUG',  # Para ver logs de CORS
+        },
+    },
+}
+# ============================================================
